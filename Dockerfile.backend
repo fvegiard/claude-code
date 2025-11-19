@@ -1,0 +1,78 @@
+# ============================================
+# Dockerfile pour Backend Production
+# Système d'Agents Électriques Québécois
+# ============================================
+
+# Stage 1: Builder
+FROM node:20-alpine AS builder
+
+# Installer Python et dépendances système
+RUN apk add --no-cache \
+    python3 \
+    py3-pip \
+    tesseract-ocr \
+    tesseract-ocr-data-fra \
+    build-base \
+    python3-dev \
+    jpeg-dev \
+    zlib-dev
+
+# Créer le répertoire de travail
+WORKDIR /app
+
+# Copier les fichiers de dépendances
+COPY backend/package*.json ./
+COPY backend/requirements.txt ./
+
+# Installer les dépendances Node.js
+RUN npm ci --only=production
+
+# Installer les dépendances Python
+RUN pip3 install --no-cache-dir -r requirements.txt
+
+# Stage 2: Production
+FROM node:20-alpine
+
+# Installer runtime dependencies
+RUN apk add --no-cache \
+    python3 \
+    py3-pip \
+    tesseract-ocr \
+    tesseract-ocr-data-fra \
+    tini
+
+# Créer un utilisateur non-root
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
+
+# Créer le répertoire de travail
+WORKDIR /app
+
+# Copier les node_modules du builder
+COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
+
+# Copier les packages Python du builder
+COPY --from=builder /usr/lib/python3.*/site-packages /usr/lib/python3.11/site-packages
+
+# Copier le code de l'application
+COPY --chown=nodejs:nodejs backend/ ./
+
+# Créer les répertoires nécessaires
+RUN mkdir -p storage/uploads storage/processed storage/exports logs && \
+    chown -R nodejs:nodejs storage logs
+
+# Utiliser l'utilisateur non-root
+USER nodejs
+
+# Exposer le port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD node -e "require('http').get('http://localhost:3000/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
+
+# Utiliser tini pour une gestion correcte des signaux
+ENTRYPOINT ["/sbin/tini", "--"]
+
+# Démarrer l'application
+CMD ["node", "api/server.production.js"]
