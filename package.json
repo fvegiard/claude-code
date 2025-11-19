@@ -1,0 +1,58 @@
+{
+  "name": "quebec-electrical-system",
+  "version": "1.0.0",
+  "description": "Complete Quebec Electrical System with 11 specialized AI agents, Claude Code CLI integration, and Claude Max authentication",
+  "private": true,
+  "workspaces": [
+    "backend",
+    "electron-app",
+    "mcp-server-quebec-electrical"
+  ],
+  "scripts": {
+    "setup": "bash setup.sh",
+    "start": "bash start.sh",
+    "dev": "npm run dev --workspace=electron-app",
+    "build": "npm run build --workspace=electron-app",
+    "test": "npm run test --workspaces",
+    "test:backend": "npm run test --workspace=backend",
+    "test:electron": "npm run test --workspace=electron-app",
+    "lint": "eslint . --ext .js,.jsx",
+    "format": "prettier --write \"**/*.{js,jsx,json,md}\"",
+    "install:all": "npm install && npm install --workspaces",
+    "clean": "rm -rf node_modules */node_modules */*/node_modules",
+    "deploy": "bash scripts/deploy.sh",
+    "docker:build": "docker-compose -f docker-compose.production.yml build",
+    "docker:up": "docker-compose -f docker-compose.production.yml up -d",
+    "docker:down": "docker-compose -f docker-compose.production.yml down",
+    "docs": "echo 'See README.md, CLI_INSTALLATION.md, and other documentation files'"
+  },
+  "keywords": [
+    "quebec",
+    "electrical",
+    "claude-code",
+    "claude-max",
+    "mcp",
+    "electron",
+    "ai-agents",
+    "CEQ",
+    "RSST",
+    "RBQ",
+    "CSA"
+  ],
+  "author": "F. Vegiard",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/fvegiard/claude-code"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0",
+    "python": ">=3.8.0"
+  },
+  "devDependencies": {
+    "eslint": "^8.55.0",
+    "prettier": "^3.1.1",
+    "concurrently": "^8.2.2"
+  }
+}
