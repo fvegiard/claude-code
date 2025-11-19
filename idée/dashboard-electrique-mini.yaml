@@ -1,0 +1,74 @@
+workflow:
+  name: "dashboard-electrique-mini"
+  description: "Mini version du Dashboard Électrique Québec avec agents parallèles"
+  
+  agents:
+    # Phase 1: Data Collection (parallel)
+    - id: "fetch-code-norms"
+      type: "mcp-filesystem"
+      input: "/data/code-norms.json"
+      timeout: 30
+    
+    - id: "fetch-project-specs"
+      type: "mcp-google-drive"
+      input: "project_specs_doc"
+      timeout: 30
+    
+    - id: "fetch-historical-data"
+      type: "system"
+      input: "database_query"
+      timeout: 30
+    
+    # Phase 2: Quebec Electrical Analysis (depends on data)
+    - id: "safety-analysis"
+      type: "quebec-electrical"
+      depends_on: ["fetch-code-norms", "fetch-project-specs"]
+      input: "${fetch-code-norms_output} + ${fetch-project-specs_output}"
+      timeout: 180
+    
+    - id: "compliance-check"
+      type: "quebec-electrical"
+      depends_on: ["fetch-code-norms", "fetch-project-specs"]
+      input: "${fetch-code-norms_output}"
+      timeout: 180
+    
+    - id: "load-calculation"
+      type: "quebec-electrical"
+      depends_on: ["fetch-project-specs", "fetch-historical-data"]
+      input: "${fetch-project-specs_output}"
+      timeout: 120
+    
+    # Phase 3: Development (parallel document generation)
+    - id: "generate-safety-report"
+      type: "development"
+      depends_on: ["safety-analysis"]
+      input: "${safety-analysis_output}"
+      parallel: ["safety_report.docx", "safety_summary.pdf"]
+      timeout: 120
+    
+    - id: "generate-compliance-report"
+      type: "development"
+      depends_on: ["compliance-check"]
+      input: "${compliance-check_output}"
+      parallel: ["compliance_report.docx"]
+      timeout: 120
+    
+    - id: "generate-load-report"
+      type: "development"
+      depends_on: ["load-calculation"]
+      input: "${load-calculation_output}"
+      parallel: ["load_report.xlsx", "load_chart.png"]
+      timeout: 120
+    
+    # Phase 4: Final Consolidation
+    - id: "consolidate-dashboard"
+      type: "claude-code-executor"
+      depends_on: ["generate-safety-report", "generate-compliance-report", "generate-load-report"]
+      input: "all_reports"
+      timeout: 300
+    
+    - id: "send-notification"
+      type: "mcp-slack"
+      depends_on: ["consolidate-dashboard"]
+      input: "dashboard_ready"
+      timeout: 30

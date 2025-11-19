@@ -1,0 +1,25 @@
+workflow:
+  name: "simple-sequential"
+  description: "Simple workflow avec 3 agents en séquence"
+  
+  agents:
+    - id: "fetch-data"
+      type: "mcp-google-drive"
+      input: "doc_id_12345"
+      timeout: 60
+      retry: 3
+    
+    - id: "analyze-content"
+      type: "quebec-electrical"
+      depends_on: ["fetch-data"]
+      input: "${fetch-data_output}"
+      timeout: 120
+    
+    - id: "generate-report"
+      type: "development"
+      depends_on: ["analyze-content"]
+      input: "${analyze-content_output}"
+      parallel:
+        - "report.docx"
+        - "summary.pdf"
+      timeout: 180

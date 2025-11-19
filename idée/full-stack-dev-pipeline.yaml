@@ -1,0 +1,60 @@
+workflow:
+  name: "full-stack-dev-pipeline"
+  description: "Pipeline complet utilisant Claude Code Executor pour dev full-stack"
+  
+  agents:
+    # Phase 1: Requirements & Design
+    - id: "gather-requirements"
+      type: "mcp-google-drive"
+      input: "requirements_doc_id"
+      timeout: 60
+    
+    - id: "design-architecture"
+      type: "development"
+      depends_on: ["gather-requirements"]
+      input: "${gather-requirements_output}"
+      timeout: 180
+    
+    # Phase 2: Development via Claude Code Executor (parallel frontend/backend)
+    - id: "develop-backend"
+      type: "claude-code-executor"
+      depends_on: ["design-architecture"]
+      input: "${design-architecture_output}"
+      parallel: ["api", "database", "tests"]
+      timeout: 600
+      retry: 2
+    
+    - id: "develop-frontend"
+      type: "claude-code-executor"
+      depends_on: ["design-architecture"]
+      input: "${design-architecture_output}"
+      parallel: ["ui", "components", "tests"]
+      timeout: 600
+      retry: 2
+    
+    # Phase 3: Integration & Testing
+    - id: "integration-testing"
+      type: "claude-code-executor"
+      depends_on: ["develop-backend", "develop-frontend"]
+      input: "run_integration_tests"
+      timeout: 300
+    
+    - id: "generate-documentation"
+      type: "development"
+      depends_on: ["integration-testing"]
+      input: "${integration-testing_output}"
+      parallel: ["README.md", "API_DOCS.md", "DEPLOY.md"]
+      timeout: 120
+    
+    # Phase 4: Deployment
+    - id: "deploy-staging"
+      type: "system"
+      depends_on: ["integration-testing", "generate-documentation"]
+      input: "staging_environment"
+      timeout: 300
+    
+    - id: "notify-team"
+      type: "mcp-slack"
+      depends_on: ["deploy-staging"]
+      input: "#dev-team: Staging deployed"
+      timeout: 30
