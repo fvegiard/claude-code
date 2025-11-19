@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "quebec-electrical": {
+      "command": "node",
+      "args": ["mcp-server-quebec-electrical/index.js"],
+      "description": "11 agents électriques spécialisés pour le Québec (CEQ, RSST, RBQ, CSA)",
+      "env": {
+        "KNOWLEDGE_BASE_PATH": "backend/knowledge-base",
+        "UPLOAD_DIR": "storage/uploads"
+      }
+    }
+  },
+  "theme": "dark",
+  "editor": "code",
+  "autoApprove": {
+    "read": true,
+    "write": false
+  }
+}

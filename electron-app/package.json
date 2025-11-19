@@ -2,7 +2,7 @@
   "name": "quebec-electrical-system",
   "version": "1.0.0",
   "description": "Système d'agents électriques québécois avec Claude Code",
-  "main": "main/main.js",
+  "main": "main/main-cli.js",
   "scripts": {
     "start": "electron .",
     "dev": "electron . --dev",
