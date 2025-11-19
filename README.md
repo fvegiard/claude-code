@@ -9,7 +9,7 @@
 
 ## 🎯 Vue d'Ensemble
 
-Le **Système d'Agents Électriques Québécois** est une application Electron qui intègre 11 agents IA spécialisés pour aider les électriciens, ingénieurs et professionnels du bâtiment au Québec.
+Le **Système d'Agents Électriques Québécois** est une application Electron qui intègre **29 agents IA spécialisés** (11 électriques + 15 développement + 3 système) pour aider les électriciens, ingénieurs et professionnels du bâtiment au Québec.
 
 ### Architecture Unique: Claude Code CLI
 
@@ -21,13 +21,15 @@ Electron Frontend ─→ CLI Bridge ─→ Claude Code CLI ─→ MCP Server ─
 
 **Avantages**:
 - ✅ **Authentification OAuth** avec compte Claude Max (pas besoin de clé API)
-- ✅ **MCP (Model Context Protocol)** pour exposer les 11 agents comme outils
+- ✅ **MCP (Model Context Protocol)** pour exposer les 29 agents comme outils
 - ✅ **Session persistante** et gestion automatique du contexte
 - ✅ **Intégration native** avec l'écosystème Claude Code
 
 ## ✨ Fonctionnalités Principales
 
-### 🤖 11 Agents Spécialisés
+### 🤖 29 Agents Spécialisés
+
+#### ⚡ 11 Agents Électriques Québécois
 
 1. **Spécialiste Sécurité Électrique** - Normes RSST, EPI, procédures sécuritaires
 2. **Calculateur Électrique** - Charges, sections de câbles, chutes de tension
@@ -40,6 +42,16 @@ Electron Frontend ─→ CLI Bridge ─→ Claude Code CLI ─→ MCP Server ─
 9. **Suivi des Matériaux** - Inventaire, traçabilité, consommation
 10. **Créateur de Tableaux de Bord** - Métriques, KPIs, visualisations
 11. **Planificateur de Chantier** - Logistique, sécurité, coordination
+
+#### 💻 15 Agents Développement Général
+
+Expert code reviewers, documentation generators, test writers, security auditors, performance optimizers, database designers, API architects, UI/UX designers, DevOps specialists, cloud architects, mobile developers, frontend/backend specialists, full-stack coordinators, and project documenters.
+
+#### 🔧 3 Agents Système
+
+System monitoring, log analysis, backup management, and disaster recovery specialists.
+
+> 📖 **Voir [AGENTS_LIST.md](AGENTS_LIST.md) pour la liste complète et détaillée des 29 agents**
 
 ### 📄 Traitement Intelligent de PDF
 
@@ -164,10 +176,13 @@ npm run dev
                                       ▼
                     ┌─────────────────────────────────────────────┐
                     │         MCP SERVER (Node.js)                │
-                    │      quebec-electrical                      │
+                    │      quebec-electrical v2.0.0               │
                     │                                             │
                     │  ┌─────────────────────────────────────┐   │
-                    │  │  11 Electrical Agents (Tools)       │   │
+                    │  │  29 Agents (Tools)                  │   │
+                    │  │  • 11 Electrical Agents             │   │
+                    │  │  • 15 Development Agents            │   │
+                    │  │  • 3 System Agents                  │   │
                     │  │  + PDF Processing Tools             │   │
                     │  │  + Knowledge Base Search            │   │
                     │  └─────────────────────────────────────┘   │
@@ -206,8 +221,8 @@ npm run dev
 - Invocation des agents
 
 #### 4. **MCP Server** (`mcp-server-quebec-electrical/`)
-- Serveur Model Context Protocol
-- Expose 15 outils dont les 11 agents
+- Serveur Model Context Protocol v2.0.0
+- Expose 33 outils (29 agents + 4 utilitaires)
 - Intégration Python pour PDF et KB
 - Conforme au standard MCP
 

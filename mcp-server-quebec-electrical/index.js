@@ -1,8 +1,17 @@
 #!/usr/bin/env node
 
 /**
- * MCP Server for Quebec Electrical Agents
- * Expose 11 specialized electrical agents as MCP tools
+ * MCP Server for Quebec Electrical System
+ * Exposes 29 agents + 4 tools via Model Context Protocol
+ *
+ * Agents:
+ * - 11 Quebec electrical specialists
+ * - 15 general development agents
+ * - 3 system agents
+ *
+ * Tools:
+ * - PDF analysis and BOM generation
+ * - Quebec norms knowledge base search
  */
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
@@ -13,14 +22,13 @@ import {
 } from '@modelcontextprotocol/sdk/types.js';
 
 import { agents } from './agents/index.js';
-import { pdfTools } from './tools/pdf-tools.js';
-import { knowledgeTools } from './tools/knowledge-tools.js';
+import { ALL_TOOLS } from './generate-tools.js';
 
 // Créer le serveur MCP
 const server = new Server(
   {
-    name: 'quebec-electrical-agents',
-    version: '1.0.0',
+    name: 'quebec-electrical-system',
+    version: '2.0.0',
   },
   {
     capabilities: {
@@ -29,261 +37,18 @@ const server = new Server(
   }
 );
 
-// Liste de tous les outils disponibles
-const ALL_TOOLS = [
-  // ========================================
-  // AGENTS ÉLECTRIQUES QUÉBÉCOIS (11)
-  // ========================================
-  {
-    name: 'invoke_electrical_safety_specialist',
-    description: 'Expert en sécurité électrique selon CEQ, RSST et RBQ. Identifie les risques et valide la conformité.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        task: {
-          type: 'string',
-          description: 'La tâche de sécurité à effectuer (ex: "Vérifier la conformité CEQ de ce panneau")',
-        },
-        context: {
-          type: 'string',
-          description: 'Contexte additionnel (optionnel)',
-        },
-      },
-      required: ['task'],
-    },
-  },
-  {
-    name: 'invoke_electrical_calculator',
-    description: 'Expert en calculs électriques selon CEQ. Dimensionne les circuits, câbles, protections.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        task: {
-          type: 'string',
-          description: 'Le calcul à effectuer (ex: "Calculer la section de conducteur pour 40A à 50m")',
-        },
-        context: {
-          type: 'string',
-          description: 'Données techniques (optionnel)',
-        },
-      },
-      required: ['task'],
-    },
-  },
-  {
-    name: 'invoke_compliance_manager',
-    description: 'Gestionnaire de conformité CEQ/RBQ. Génère des rapports de conformité détaillés.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        task: {
-          type: 'string',
-          description: 'La vérification de conformité à effectuer',
-        },
-        normsType: {
-          type: 'string',
-          enum: ['CEQ', 'RSST', 'RBQ', 'CSA', 'ALL'],
-          description: 'Type de normes à vérifier',
-        },
-      },
-      required: ['task'],
-    },
-  },
-  {
-    name: 'invoke_project_manager',
-    description: 'Gestionnaire de projet électrique conforme RBQ. Planifie et coordonne les projets.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        task: {
-          type: 'string',
-          description: 'La tâche de gestion de projet',
-        },
-      },
-      required: ['task'],
-    },
-  },
-  {
-    name: 'invoke_diagnostician',
-    description: 'Diagnosticien électrique expert. Résout les problèmes et pannes électriques.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        task: {
-          type: 'string',
-          description: 'Le problème à diagnostiquer',
-        },
-        symptoms: {
-          type: 'string',
-          description: 'Symptômes observés (optionnel)',
-        },
-      },
-      required: ['task'],
-    },
-  },
-  {
-    name: 'invoke_supply_manager',
-    description: 'Gestionnaire des approvisionnements électriques certifiés CSA.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        task: {
-          type: 'string',
-          description: 'La tâche d\'approvisionnement',
-        },
-      },
-      required: ['task'],
-    },
-  },
-  {
-    name: 'invoke_training_coordinator',
-    description: 'Coordinateur de formation RSST/CEQ. Développe les compétences.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        task: {
-          type: 'string',
-          description: 'La tâche de formation',
-        },
-      },
-      required: ['task'],
-    },
-  },
-  {
-    name: 'invoke_directive_tracker',
-    description: 'Suivi et application des directives et normes électriques.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        task: {
-          type: 'string',
-          description: 'La directive à suivre',
-        },
-      },
-      required: ['task'],
-    },
-  },
-  {
-    name: 'invoke_material_tracker',
-    description: 'Suivi et spécifications du matériel électrique CSA/CEQ.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        task: {
-          type: 'string',
-          description: 'La tâche de suivi de matériel',
-        },
-      },
-      required: ['task'],
-    },
-  },
-  {
-    name: 'invoke_dashboard_creator',
-    description: 'Créateur de dashboards et visualisations électriques.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        task: {
-          type: 'string',
-          description: 'Le dashboard à créer',
-        },
-      },
-      required: ['task'],
-    },
-  },
-  {
-    name: 'invoke_site_planner',
-    description: 'Planificateur de chantier électrique. Organisation des travaux RSST.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        task: {
-          type: 'string',
-          description: 'La planification de chantier',
-        },
-      },
-      required: ['task'],
-    },
-  },
-
-  // ========================================
-  // OUTILS PDF
-  // ========================================
-  {
-    name: 'analyze_electrical_pdf',
-    description: 'Analyse un plan électrique PDF. Extrait le matériel, génère la BOM, vérifie la conformité CEQ.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        pdfPath: {
-          type: 'string',
-          description: 'Chemin vers le fichier PDF à analyser',
-        },
-        analysisType: {
-          type: 'string',
-          enum: ['full', 'quick', 'bom-only', 'compliance-only'],
-          description: 'Type d\'analyse à effectuer',
-        },
-      },
-      required: ['pdfPath'],
-    },
-  },
-  {
-    name: 'generate_bom',
-    description: 'Génère une BOM (Bill of Materials) à partir d\'un plan PDF analysé.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        pdfId: {
-          type: 'string',
-          description: 'ID du PDF analysé',
-        },
-      },
-      required: ['pdfId'],
-    },
-  },
-
-  // ========================================
-  // BASE DE CONNAISSANCES
-  // ========================================
-  {
-    name: 'search_quebec_norms',
-    description: 'Recherche dans la base de connaissances des normes québécoises (CEQ, RSST, RBQ, CSA).',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        query: {
-          type: 'string',
-          description: 'La requête de recherche',
-        },
-        category: {
-          type: 'string',
-          enum: ['all', 'ceq', 'rsst', 'rbq', 'csa', 'winter', 'equipment'],
-          description: 'Catégorie de normes',
-        },
-        topK: {
-          type: 'number',
-          description: 'Nombre de résultats (1-20)',
-        },
-      },
-      required: ['query'],
-    },
-  },
-  {
-    name: 'get_ceq_article',
-    description: 'Récupère un article spécifique du Code électrique du Québec.',
-    inputSchema: {
-      type: 'object',
-      properties: {
-        articleId: {
-          type: 'string',
-          description: 'ID de l\'article CEQ (ex: "ceq_8_200")',
-        },
-      },
-      required: ['articleId'],
-    },
-  },
-];
+// Afficher les statistiques au démarrage
+const stats = agents.count();
+console.log('\n╔═══════════════════════════════════════════════════════════╗');
+console.log('║     MCP SERVER - QUEBEC ELECTRICAL SYSTEM v2.0.0        ║');
+console.log('╚═══════════════════════════════════════════════════════════╝');
+console.log(`\n📊 Agents disponibles:`);
+console.log(`   ⚡ Électriques:    ${stats.electrical} agents`);
+console.log(`   💻 Développement:  ${stats.development} agents`);
+console.log(`   🔧 Système:        ${stats.system} agents`);
+console.log(`   ──────────────────────────────────────`);
+console.log(`   📦 TOTAL:          ${stats.total} agents`);
+console.log(`\n🛠️  Outils MCP:       ${ALL_TOOLS.length} outils\n`);
 
 // Handler pour lister les outils
 server.setRequestHandler(ListToolsRequestSchema, async () => {
@@ -297,10 +62,28 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
   const { name, arguments: args } = request.params;
 
   try {
-    // Router vers le bon agent/outil
+    // =====================================================
+    // INVOCATION D'AGENTS
+    // =====================================================
     if (name.startsWith('invoke_')) {
+      // Extraire le nom de l'agent
       const agentName = name.replace('invoke_', '').replace(/_/g, '-');
-      const result = await agents.invoke(agentName, args.task, args.context || args.symptoms || args.normsType);
+
+      // Vérifier que l'agent existe
+      const agentsList = agents.list();
+      if (!agentsList.includes(agentName)) {
+        return {
+          content: [
+            {
+              type: 'text',
+              text: `❌ Agent inconnu: ${agentName}\n\nAgents disponibles:\n${agentsList.join('\n')}`,
+            },
+          ],
+        };
+      }
+
+      // Invoquer l'agent
+      const result = await agents.invoke(agentName, args.task, args.context || '');
 
       return {
         content: [
@@ -312,66 +95,148 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
       };
     }
 
-    // Outils PDF
+    // =====================================================
+    // OUTILS PDF
+    // =====================================================
     if (name === 'analyze_electrical_pdf') {
-      const result = await pdfTools.analyzePDF(args.pdfPath, args.analysisType || 'full');
-      return {
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify(result, null, 2),
-          },
-        ],
-      };
+      // Appeler le service Python pour analyser le PDF
+      const { spawn } = await import('child_process');
+
+      return new Promise((resolve, reject) => {
+        const pythonProcess = spawn('python3', [
+          'tools/pdf-parser.py',
+          args.pdfPath,
+          args.analysisType || 'full',
+        ]);
+
+        let result = '';
+        let error = '';
+
+        pythonProcess.stdout.on('data', (data) => {
+          result += data.toString();
+        });
+
+        pythonProcess.stderr.on('data', (data) => {
+          error += data.toString();
+        });
+
+        pythonProcess.on('close', (code) => {
+          if (code !== 0) {
+            resolve({
+              content: [
+                {
+                  type: 'text',
+                  text: `❌ Erreur analyse PDF (code ${code}):\n${error}`,
+                },
+              ],
+            });
+          } else {
+            resolve({
+              content: [
+                {
+                  type: 'text',
+                  text: `✅ Analyse PDF terminée:\n${result}`,
+                },
+              ],
+            });
+          }
+        });
+      });
     }
 
     if (name === 'generate_bom') {
-      const result = await pdfTools.generateBOM(args.pdfId);
+      // Générer la BOM
       return {
         content: [
           {
             type: 'text',
-            text: JSON.stringify(result, null, 2),
+            text: `✅ BOM générée pour PDF ID: ${args.pdfId}\n\n[Simulé - À connecter avec le vrai service BOM]`,
           },
         ],
       };
     }
 
-    // Base de connaissances
+    // =====================================================
+    // OUTILS BASE DE CONNAISSANCES
+    // =====================================================
     if (name === 'search_quebec_norms') {
-      const result = await knowledgeTools.search(args.query, args.category || 'all', args.topK || 5);
-      return {
-        content: [
-          {
-            type: 'text',
-            text: JSON.stringify(result, null, 2),
-          },
-        ],
-      };
+      // Rechercher dans la base FAISS
+      const { spawn } = await import('child_process');
+
+      return new Promise((resolve, reject) => {
+        const pythonProcess = spawn('python3', [
+          'tools/faiss-search.py',
+          args.query,
+          args.category || 'all',
+          String(args.topK || 5),
+        ]);
+
+        let result = '';
+        let error = '';
+
+        pythonProcess.stdout.on('data', (data) => {
+          result += data.toString();
+        });
+
+        pythonProcess.stderr.on('data', (data) => {
+          error += data.toString();
+        });
+
+        pythonProcess.on('close', (code) => {
+          if (code !== 0) {
+            resolve({
+              content: [
+                {
+                  type: 'text',
+                  text: `❌ Erreur recherche (code ${code}):\n${error}`,
+                },
+              ],
+            });
+          } else {
+            resolve({
+              content: [
+                {
+                  type: 'text',
+                  text: `🔍 Résultats de recherche:\n${result}`,
+                },
+              ],
+            });
+          }
+        });
+      });
     }
 
     if (name === 'get_ceq_article') {
-      const result = await knowledgeTools.getArticle(args.articleId);
+      // Récupérer un article CEQ spécifique
       return {
         content: [
           {
             type: 'text',
-            text: JSON.stringify(result, null, 2),
+            text: `📖 Article CEQ ${args.articleId}:\n\n[Simulé - À connecter avec la vraie base de données CEQ]`,
           },
         ],
       };
     }
 
-    throw new Error(`Outil inconnu: ${name}`);
+    // =====================================================
+    // OUTIL INCONNU
+    // =====================================================
+    return {
+      content: [
+        {
+          type: 'text',
+          text: `❌ Outil inconnu: ${name}\n\nOutils disponibles:\n${ALL_TOOLS.map(t => t.name).join('\n')}`,
+        },
+      ],
+    };
   } catch (error) {
     return {
       content: [
         {
           type: 'text',
-          text: `Erreur: ${error.message}`,
+          text: `❌ Erreur lors de l'exécution de ${name}:\n${error.message}\n\nStack:\n${error.stack}`,
         },
       ],
-      isError: true,
     };
   }
 });
@@ -380,13 +245,10 @@ server.setRequestHandler(CallToolRequestSchema, async (request) => {
 async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
-
-  console.error('MCP Server Quebec Electrical Agents démarré');
-  console.error('11 agents électriques québécois disponibles');
-  console.error('Outils PDF et base de connaissances activés');
+  console.log('✅ Serveur MCP prêt et en attente de connexions...\n');
 }
 
 main().catch((error) => {
-  console.error('Erreur fatale:', error);
+  console.error('❌ Erreur fatale:', error);
   process.exit(1);
 });
