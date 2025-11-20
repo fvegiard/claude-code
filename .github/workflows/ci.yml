@@ -41,8 +41,14 @@ jobs:
         run: |
           pip install -r backend/requirements.txt
 
+      - name: Install test dependencies
+        run: |
+          cd tests
+          npm install
+
       - name: Run Jest tests
         run: |
+          cd tests
           npm test
         env:
           NODE_ENV: test
@@ -50,9 +56,10 @@ jobs:
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v3
         with:
-          files: ./coverage/lcov.info
+          files: ./tests/coverage/lcov.info
           flags: unittests
           name: codecov-umbrella
+        continue-on-error: true
 
   lint:
     name: Lint Code
