@@ -4,9 +4,11 @@
 node_modules/
 */node_modules/
 */*/node_modules/
-package-lock.json
 yarn.lock
 pnpm-lock.yaml
+
+# Keep package-lock.json for reproducible builds
+# package-lock.json
 
 # Python
 __pycache__/
