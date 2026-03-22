@@ -1,9 +1,6 @@
 name: Oncall Issue Triage
 description: Automatically identify and label critical blocking issues requiring oncall attention
 on:
-  push:
-    branches:
-      - add-oncall-triage-workflow  # Temporary: for testing only
   schedule:
     # Run every 6 hours
     - cron: '0 */6 * * *'
