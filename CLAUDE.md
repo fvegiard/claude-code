@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is the official Claude Code repository by Anthropic. It contains:
 - **Official plugins** in `plugins/` - extending Claude Code with commands, agents, hooks, and skills
 - **Example hooks** in `examples/hooks/` - sample hook implementations
+- **Example settings** in `examples/settings/` - managed settings files for organization-wide deployments (lax, strict, bash-sandbox)
 - **Issue management scripts** in `scripts/` - TypeScript/Bun scripts for GitHub issue automation
 - **GitHub workflows** in `.github/workflows/` - CI/CD for issue triage, duplicate detection, and @claude mentions
 
@@ -39,10 +40,14 @@ plugin-name/
 | Plugin | Purpose |
 |--------|---------|
 | `agent-sdk-dev` | Agent SDK development tools |
+| `claude-opus-4-5-migration` | Migrate code and prompts from Sonnet 4.x / Opus 4.1 to Opus 4.5 |
 | `code-review` | Automated PR review with confidence scoring |
 | `commit-commands` | Git workflow automation (`/commit`, `/commit-push-pr`) |
+| `explanatory-output-style` | Educational insights about implementation choices (mimics deprecated Explanatory output style) |
 | `feature-dev` | 7-phase feature development workflow |
+| `frontend-design` | Frontend design skill for distinctive, production-grade UI |
 | `hookify` | Create custom hooks from conversation patterns |
+| `learning-output-style` | Interactive learning mode requesting code contributions at decision points |
 | `plugin-dev` | Plugin creation toolkit with validators |
 | `pr-review-toolkit` | Specialized PR review agents |
 | `ralph-wiggum` | Iterative AI loops for development |
