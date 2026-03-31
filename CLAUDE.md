@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 This is the official Claude Code repository by Anthropic. It contains:
 - **Official plugins** in `plugins/` - extending Claude Code with commands, agents, hooks, and skills
 - **Example hooks** in `examples/hooks/` - sample hook implementations
+- **Example settings** in `examples/settings/` - organization-wide settings deployment templates (lax, strict, bash-sandbox)
 - **Issue management scripts** in `scripts/` - TypeScript/Bun scripts for GitHub issue automation
 - **GitHub workflows** in `.github/workflows/` - CI/CD for issue triage, duplicate detection, and @claude mentions
 

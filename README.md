@@ -45,6 +45,10 @@ For more installation options, uninstall steps, and troubleshooting, see the [se
 
 2. Navigate to your project directory and run `claude`.
 
+## Settings Examples
+
+The [`examples/settings/`](./examples/settings/) directory contains example configuration files for organization-wide Claude Code deployments, including lax, strict, and bash-sandbox presets. See the [settings examples README](./examples/settings/README.md) for details.
+
 ## Plugins
 
 This repository includes several Claude Code plugins that extend functionality with custom commands and agents. See the [plugins directory](./plugins/README.md) for detailed documentation on available plugins.
